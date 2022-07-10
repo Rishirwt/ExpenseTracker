@@ -1,8 +1,11 @@
 package com.rishabh.expensetracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
@@ -53,14 +56,20 @@ public class Expense {
     @UpdateTimestamp
     private Timestamp updatedOn;
 
-    public Expense(String name, String desc, Double amount, String category, Date date) {
+    public Expense(String name, String desc, Double amount, String category, Date date , User user) {
         this.name = name;
         this.desc = desc;
         this.amount = amount;
         this.category = category;
         this.date = date;
+        this.user = user;
     }
 
+    @ManyToOne(fetch = FetchType.LAZY , optional = false)
+    @JoinColumn(name = "user_id",nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private User user;
 
 }
 

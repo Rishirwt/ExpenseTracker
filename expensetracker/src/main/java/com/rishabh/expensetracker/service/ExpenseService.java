@@ -12,7 +12,6 @@ public interface ExpenseService {
 
     Page<Expense> getAllExpenses(Pageable page);
     Expense getExpenseById(Long id);
-
     void deleteExpenseById(Long id);
 
     Expense saveExpense(Expense e);

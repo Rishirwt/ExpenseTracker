@@ -16,16 +16,19 @@ import java.util.Optional;
 public class ExpenseServiceImpl implements ExpenseService{
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private ExpenseRepository expenseRepository;
 
     @Override
     public Page<Expense> getAllExpenses(Pageable page) {
-        return expenseRepository.findAll(page);
+        return expenseRepository.findByUserId(userService.getLoggedInUser().getId(),page);
     }
 
     @Override
     public Expense getExpenseById(Long id) {
-        Optional<Expense> exp = expenseRepository.findById(id);
+        Optional<Expense> exp = expenseRepository.findByUserIdAndId(userService.getLoggedInUser().getId() , id);
         if (exp.isPresent()){
             return exp.get();
         }
@@ -34,7 +37,7 @@ public class ExpenseServiceImpl implements ExpenseService{
 
     @Override
     public void deleteExpenseById(Long id) {
-        Optional<Expense> exp = expenseRepository.findById(id);
+        Optional<Expense> exp = expenseRepository.findByUserIdAndId(userService.getLoggedInUser().getId() ,id);
         if (exp.isPresent()){
             expenseRepository.deleteById(id);
         }
@@ -45,6 +48,7 @@ public class ExpenseServiceImpl implements ExpenseService{
 
     @Override
     public Expense saveExpense(Expense e) {
+        e.setUser(userService.getLoggedInUser());
         return expenseRepository.save(e);
     }
 
@@ -68,26 +72,24 @@ public class ExpenseServiceImpl implements ExpenseService{
 
     @Override
     public List<Expense> readByCategory(String category, Pageable page) {
-       return expenseRepository.findByCategory(category,page).toList();
+       return expenseRepository.findByUserIdAndCategory(userService.getLoggedInUser().getId(),category,page).toList();
 
     }
 
     @Override
     public List<Expense> readByKeyword(String keyword, Pageable page) {
-        return expenseRepository.findByNameContaining(keyword,page).toList();
+        return expenseRepository.findByUserIdAndNameContaining(userService.getLoggedInUser().getId(),keyword,page).toList();
     }
 
     @Override
     public List<Expense> readByDate(Date start, Date end, Pageable page) {
-        if(start==null){
+        if (start == null) {
             start = new Date(0);
         }
-        if(end==null){
+        if (end == null) {
             end = new Date(System.currentTimeMillis());
         }
 
-        return expenseRepository.findByDateBetween(start,end,page).toList();
+        return expenseRepository.findByUserIdAndDateBetween(userService.getLoggedInUser().getId(),start, end, page).toList();
     }
-
-
 }
